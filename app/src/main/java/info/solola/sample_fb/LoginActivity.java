@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -16,6 +17,8 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 
 public class LoginActivity extends Activity {
@@ -25,6 +28,7 @@ public class LoginActivity extends Activity {
     private ProfileTracker profileTracker;
     private AccessToken accessToken;
     private TextView fbId, fbName;
+    private ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +40,18 @@ public class LoginActivity extends Activity {
 
         FacebookInitialize();
 
+        // Create global configuration and initialize ImageLoader with this config
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+
+                .build();
+
+        ImageLoader.getInstance().init(config);
+
         fbId = (TextView) findViewById(R.id.fbId);
         fbName = (TextView) findViewById(R.id.fbName);
+
+        imageView = (ImageView) findViewById(R.id.imageView);
+
     }
 
     private void FacebookInitialize() {
@@ -92,20 +106,23 @@ public class LoginActivity extends Activity {
                 fbId.setText(profile.getId());
                 fbName.setText(profile.getName());
 
-                 Log.e("Profile.Pic", profile.getProfilePictureUri(100, 100).toString());
+                String imageUri = profile.getProfilePictureUri(100, 100).toString();
 
+                ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
 
+                // Load image, decode it to Bitmap and display Bitmap in ImageView (or any other view
+                //  which implements ImageAware interface)
+                imageLoader.displayImage(imageUri, imageView);
 
                 // TODO: Implement this method to send any registration to your app's servers.
 
             }
-        }
-        else{
+        } else {
 
             //Initialize NULL value
             fbId.setText("");
             fbName.setText("");
-
+            imageView.setImageResource(android.R.color.transparent);
         }
 
     }
